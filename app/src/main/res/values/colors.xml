@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand / Primary -->
+    <color name="primary">#0F172A</color>
+    <color name="primary_light">#1E293B</color>
+    <color name="primary_dark">#020617</color>
+    <color name="accent">#2563EB</color>
+    <color name="accent_light">#DBEAFE</color>
+
+    <!-- Financial Market Colors -->
+    <color name="stock_green">#10B981</color>
+    <color name="stock_green_bg">#E6F9F0</color>
+    <color name="stock_green_dark">#059669</color>
+    <color name="stock_red">#EF4444</color>
+    <color name="stock_red_bg">#FEE2E2</color>
+    <color name="stock_red_dark">#DC2626</color>
+
+    <!-- Legacy compatibility colors -->
+    <color name="purple_200">#6366F1</color>
+    <color name="purple_500">#0F172A</color>
+    <color name="purple_700">#020617</color>
+    <color name="teal_200">#10B981</color>
+    <color name="teal_700">#059669</color>
+    <color name="black">#0F172A</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="red">#EF4444</color>
+    <color name="green">#10B981</color>
+
+    <!-- Surfaces & Neutrals -->
+    <color name="background_light">#F8FAFC</color>
+    <color name="card_background">#FFFFFFFF</color>
+    <color name="card_stroke">#E2E8F0</color>
+    <color name="card_stroke_hover">#CBD5E1</color>
+
+    <!-- Text Typography -->
+    <color name="text_primary">#0F172A</color>
+    <color name="text_secondary">#64748B</color>
+    <color name="text_tertiary">#94A3B8</color>
+    <color name="text_hint">#94A3B8</color>
+    <color name="divider">#F1F5F9</color>
+</resources>
