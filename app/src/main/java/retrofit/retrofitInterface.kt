@@ -1,18 +1,27 @@
 package retrofit
+
 import retrofit2.Response
 import retrofit2.http.GET
-import retrofit2.http.Path
+import retrofit2.http.Query
+import retrofit2.http.Headers
 
 interface retrofitInterface {
-    @GET("/api/symbols")
-    suspend fun getSymbols(): Response<List<String>>
 
-    @GET("/api/symbol/summary/{symbol}")
-    suspend fun getSymbolSummary(@Path("symbol") symbol: String) : Response<TickerSummary>
+    @GET("v1/cryptocurrency/listings/latest")
+    suspend fun getListings(
+        @Query("limit") limit: Int = 100,
+        @Query("convert") convert: String = "USD"
+    ): Response<CmcListingsResponse>
 
-    @GET("/api/symbol/details/{symbol}")
-    suspend fun getSymbolDetails(@Path("symbol") symbol: String) : Response<TickerDetails>
+    @GET("v2/cryptocurrency/info")
+    suspend fun getMetadata(
+        @Query("symbol") symbol: String
+    ): Response<CmcInfoResponse>
 
-    @GET("/api/news")
-    suspend fun getNews() : Response<List<News>>
+    @Headers("User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+    @GET("https://min-api.cryptocompare.com/data/v2/news/?lang=EN")
+    suspend fun getNews(
+        @Query("sortOrder") sortOrder: String = "popular",
+        @Query("limit") limit: Int = 10
+    ): Response<CryptoCompareNewsResponse>
 }
