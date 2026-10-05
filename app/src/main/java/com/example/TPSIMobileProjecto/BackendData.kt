@@ -4,126 +4,182 @@ import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import retrofit.ChartData
+import retrofit.CmcCryptoCurrency
 import retrofit.News
 import retrofit.RetrofitHelper
 import retrofit.TickerDetails
+import retrofit.TickerDetails_details
 import retrofit.TickerSummary
 import retrofit.retrofitInterface
-import retrofit2.Response
+import kotlin.math.round
 
 class BackendData {
     private val tickersAPI = RetrofitHelper.getInstance().create(retrofitInterface::class.java)
-    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
     var tickersListDeferred: Deferred<List<String>>? = null
+
+    // Cache local dos resultados da API durante a sessão
+    private var cachedListings: List<CmcCryptoCurrency>? = null
 
     init {
         getSymbols()
     }
 
-    // Function to get all symbols
+    // Método para obter a lista de símbolos
     fun getSymbols() {
-        tickersListDeferred = coroutineScope.async {
-            try {
-                val symbolsResponse = tickersAPI.getSymbols()
-                if (symbolsResponse.isSuccessful) {
-                    symbolsResponse.body() ?: emptyList()
-                } else {
-                    listOf("AAPL", "GOOGL", "MSFT", "NVDA", "NFLX", "INTC", "TSLA", "AMZN")
-                }
-            } catch (e: Exception) {
-                Log.e("BackendData", "Error fetching symbols: ${e.message}")
-                listOf("AAPL", "GOOGL", "MSFT", "NVDA", "NFLX", "INTC", "TSLA", "AMZN")
+        try {
+            tickersListDeferred = coroutineScope.async {
+                fetchListingsInternal().map { it.symbol }
             }
+        } catch (e: Exception) {
+            Log.e("BackendData", "Erro ao obter símbolos", e)
         }
     }
 
-    // Function to call async and await all symbols to pass onto other functions
-    suspend fun getTickersList(): List<String> {
-        return try {
-            tickersListDeferred?.await() ?: listOf("AAPL", "GOOGL", "MSFT", "NVDA", "NFLX", "INTC", "TSLA", "AMZN")
-        } catch (e: Exception) {
-            Log.e("BackendData", "Error awaiting tickers: ${e.message}")
-            listOf("AAPL", "GOOGL", "MSFT", "NVDA", "NFLX", "INTC", "TSLA", "AMZN")
+    private suspend fun fetchListingsInternal(): List<CmcCryptoCurrency> {
+        if (cachedListings != null && cachedListings!!.isNotEmpty()) {
+            return cachedListings!!
         }
+        return try {
+            val response = tickersAPI.getListings(limit = 50)
+            if (response.isSuccessful) {
+                val listings = response.body()?.data ?: emptyList()
+                cachedListings = listings
+                listings
+            } else {
+                Log.e("BackendData", "Falha no pedido getListings: ${response.code()} ${response.message()}")
+                emptyList()
+            }
+        } catch (e: Exception) {
+            Log.e("BackendData", "Exceção ao obter listings da CoinMarketCap", e)
+            emptyList()
+        }
+    }
+
+    // Método assíncrono para aguardar a lista de símbolos
+    suspend fun getTickersList(): List<String> {
+        return tickersListDeferred?.await() ?: emptyList()
     }
 
     suspend fun fetchNews(): List<News> {
         return try {
-            val newsResponse: Response<List<News>> = tickersAPI.getNews()
-            if (newsResponse.isSuccessful) {
-                newsResponse.body() ?: emptyList()
+            //Faz o pedido à API de News através do retrofit
+            val response = tickersAPI.getNews(limit = 15)
+
+            if (response.isSuccessful) {
+                //Extrai a lista de artigos
+                val articles = response.body()?.data ?: emptyList()
+                val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault())
+
+                //Mapeia cada NewsArticle para o modelo News
+                articles.map { article ->
+                    val formattedDate = article.publishedOn?.let { timestamp ->
+                        dateFormat.format(java.util.Date(timestamp * 1000))
+                    } ?: "Recente"
+
+                    News(
+                        title = article.title ?: "Sem título",
+                        description = article.body ?: "",
+                        date = formattedDate,
+                        image_url = article.imageurl ?: ""
+                    )
+                }
             } else {
-                Log.e("BackendData", "Failed to get news: ${newsResponse.code()}")
+                Log.e("BackendData", "Erro na API de notícias: ${response.code()} ${response.message()}")
                 emptyList()
             }
         } catch (e: Exception) {
-            Log.e("BackendData", "Exception fetching news: ${e.message}")
+            Log.e("BackendData", "Exceção ao obter notícias", e)
             emptyList()
         }
     }
 
     suspend fun fetchTickerDetailsList(): List<TickerDetails> {
-        return try {
-            val tickersList = getTickersList()
-            if (tickersList.isEmpty()) {
-                Log.e("BackendData", "No tickers available to fetch details")
-                return emptyList()
-            }
-
-            val symbolDetailsList = mutableListOf<TickerDetails>()
-            for (ticker in tickersList) {
-                try {
-                    val responseSymbolDetail: Response<TickerDetails> = tickersAPI.getSymbolDetails(ticker)
-                    if (responseSymbolDetail.isSuccessful) {
-                        val tickerDetails = responseSymbolDetail.body()
-                        if (tickerDetails != null) {
-                            symbolDetailsList.add(tickerDetails)
-                        }
-                    } else {
-                        Log.e("BackendData", "Failed to fetch details for ticker: $ticker")
-                    }
-                } catch (e: Exception) {
-                    Log.e("BackendData", "Exception fetching details for $ticker: ${e.message}")
-                }
-            }
-            symbolDetailsList
-        } catch (e: Exception) {
-            Log.e("BackendData", "Error in fetchTickerDetailsList: ${e.message}")
-            emptyList()
+        val listings = fetchListingsInternal()
+        if (listings.isEmpty()) {
+            Log.e("BackendData", "Lista de moedas vazia ao obter detalhes")
+            return emptyList()
         }
+
+        val detailsList = mutableListOf<TickerDetails>()
+
+        // Obter símbolos separados por vírgula para consultar metadados
+        val symbolsParam = listings.take(20).joinToString(",") { it.symbol }
+        val metadataMap = try {
+            val response = tickersAPI.getMetadata(symbol = symbolsParam)
+            if (response.isSuccessful) {
+                response.body()?.data ?: emptyMap()
+            } else {
+                emptyMap()
+            }
+        } catch (e: Exception) {
+            Log.e("BackendData", "Exceção ao obter metadados da CoinMarketCap", e)
+            emptyMap()
+        }
+
+        for (crypto in listings) {
+            val quoteUsd = crypto.quote?.get("USD")
+            val price = quoteUsd?.price ?: 0.0
+            val percentChange = quoteUsd?.percentChange24h ?: 0.0
+
+            val roundedPrice = (round(price * 100) / 100.0)
+            val roundedPercentChange = (round(percentChange * 100) / 100.0)
+
+            val metadataList = metadataMap[crypto.symbol]
+            val metadata = metadataList?.firstOrNull()
+
+            val logoUrl = metadata?.logo
+                ?: "https://s2.coinmarketcap.com/static/img/coins/64x64/${crypto.id}.png"
+            val category = metadata?.category?.replaceFirstChar { it.uppercase() } ?: "Criptomoeda"
+            val description = metadata?.description ?: "${crypto.name} (${crypto.symbol}) disponível no mercado global de criptomoedas."
+
+            // Gerar dados de gráfico baseados no preço atual
+            val chartPoints = listOf(0.95, 0.97, 0.96, 0.98, 1.01, 0.99, 1.02, 1.00).map { (it * roundedPrice) }
+
+            detailsList.add(
+                TickerDetails(
+                    symbol = crypto.symbol,
+                    sector = category,
+                    description = description,
+                    CEO = "Descentralizado",
+                    logo_url = logoUrl,
+                    details = TickerDetails_details(
+                        current_price = roundedPrice,
+                        change_percent = roundedPercentChange
+                    ),
+                    chart_data = ChartData(October_2022 = chartPoints)
+                )
+            )
+        }
+
+        return detailsList
     }
 
     suspend fun fetchTickerSummary(): List<TickerSummary> {
-        return try {
-            val symbolSummaryList = mutableListOf<TickerSummary>()
-            val tickersList = getTickersList()
+        val listings = fetchListingsInternal()
+        if (listings.isEmpty()) {
+            Log.e("BackendData", "Falha ao obter lista de moedas para o resumo")
+            return emptyList()
+        }
 
-            if (tickersList.isEmpty()) {
-                Log.e("BackendData", "No tickers available to fetch summary")
-                return emptyList()
-            }
+        return listings.map { crypto ->
+            val quoteUsd = crypto.quote?.get("USD")
+            val price = quoteUsd?.price ?: 0.0
+            val percentChange = quoteUsd?.percentChange24h ?: 0.0
 
-            for (ticker in tickersList) {
-                try {
-                    val responseSymbolSummary: Response<TickerSummary> = tickersAPI.getSymbolSummary(ticker)
-                    if (responseSymbolSummary.isSuccessful) {
-                        val tickerSummary = responseSymbolSummary.body()
-                        if (tickerSummary != null) {
-                            symbolSummaryList.add(tickerSummary)
-                        }
-                    } else {
-                        Log.e("BackendData", "Failed to fetch summary for ticker: $ticker")
-                    }
-                } catch (e: Exception) {
-                    Log.e("BackendData", "Exception fetching summary for $ticker: ${e.message}")
-                }
-            }
-            symbolSummaryList
-        } catch (e: Exception) {
-            Log.e("BackendData", "Error in fetchTickerSummary: ${e.message}")
-            emptyList()
+            val roundedPrice = (round(price * 100) / 100.0)
+            val roundedPercentChange = (round(percentChange * 100) / 100.0)
+
+            val logoUrl = "https://s2.coinmarketcap.com/static/img/coins/64x64/${crypto.id}.png"
+
+            TickerSummary(
+                symbol = crypto.symbol,
+                current_price = roundedPrice,
+                change_percent = roundedPercentChange,
+                logo_url = logoUrl
+            )
         }
     }
 }
