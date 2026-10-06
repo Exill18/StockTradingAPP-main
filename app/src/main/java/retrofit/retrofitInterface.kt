@@ -22,6 +22,7 @@ interface retrofitInterface {
     @GET("https://min-api.cryptocompare.com/data/v2/news/?lang=EN")
     suspend fun getNews(
         @Query("sortOrder") sortOrder: String = "popular",
-        @Query("limit") limit: Int = 10
+        @Query("limit") limit: Int = 10,
+        @Query("api_key") apiKey: String = RetrofitHelper.cryptoCompareApiKey
     ): Response<CryptoCompareNewsResponse>
 }
