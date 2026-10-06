@@ -11,13 +11,20 @@ object RetrofitHelper {
 
     var apiKey = "8d01847b-f4de-4f98-bba5-a65b952da44a"
 
+    var cryptoCompareApiKey = "09c992f9662fce1aa13dc88c1bb92f66c55f05461a075c44139a4bf7a6809758"
+
     fun getInstance(): Retrofit {
         val client = OkHttpClient.Builder().addInterceptor { chain ->
-            val request = chain.request().newBuilder()
-                .addHeader("X-CMC_PRO_API_KEY", apiKey)
-                .addHeader("Accept", "application/json")
-                .build()
-            chain.proceed(request)
+            val requestBuilder = chain.request().newBuilder()
+
+            // Injeta o cabeçalho da CoinMarketCap apenas quando o pedido for para a CoinMarketCap
+            if (chain.request().url().toString().contains("coinmarketcap.com")) {
+                requestBuilder
+                    .addHeader("X-CMC_PRO_API_KEY", apiKey)
+                    .addHeader("Accept", "application/json")
+            }
+
+            chain.proceed(requestBuilder.build())
         }.build()
 
         return Retrofit.Builder()
