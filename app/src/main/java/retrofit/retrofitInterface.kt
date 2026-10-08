@@ -9,7 +9,7 @@ interface retrofitInterface {
 
     @GET("v1/cryptocurrency/listings/latest")
     suspend fun getListings(
-        @Query("limit") limit: Int = 100,
+        @Query("limit") limit: Int = 10,
         @Query("convert") convert: String = "USD"
     ): Response<CmcListingsResponse>
 
