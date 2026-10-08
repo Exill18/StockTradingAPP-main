@@ -43,7 +43,7 @@ class BackendData {
             return cachedListings!!
         }
         return try {
-            val response = tickersAPI.getListings(limit = 50)
+            val response = tickersAPI.getListings(limit = 10)
             if (response.isSuccessful) {
                 val listings = response.body()?.data ?: emptyList()
                 cachedListings = listings
@@ -106,7 +106,7 @@ class BackendData {
         val detailsList = mutableListOf<TickerDetails>()
 
         // Obter símbolos separados por vírgula para consultar metadados
-        val symbolsParam = listings.take(20).joinToString(",") { it.symbol }
+        val symbolsParam = listings.take(10).joinToString(",") { it.symbol }
         val metadataMap = try {
             val response = tickersAPI.getMetadata(symbol = symbolsParam)
             if (response.isSuccessful) {
