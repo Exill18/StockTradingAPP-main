@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="stock_overview">Stock Overview</string>
+    <string name="_150_90">$150.90</string>
+    <string name="arrow_UP">▲</string>
+    <string name="point">•</string>
+    <string name="date_placeholder">2023-10-06</string>
+    <string name="description_new_placeholder">Major indices closed higher this week following solid earnings and economic data that lifted market sentiment across sectors.</string>
+</resources>
