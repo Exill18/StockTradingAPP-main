@@ -38,7 +38,7 @@
                 android:layout_gravity="top|start"
                 android:layout_margin="12dp"
                 android:background="@drawable/bg_tag_chip"
-                android:text="Market Update"
+                android:text="@string/market_update"
                 android:textColor="@color/text_primary"
                 android:textSize="11sp"
                 android:textStyle="bold" />
@@ -74,7 +74,7 @@
                     android:layout_marginStart="6dp"
                     android:textColor="@color/text_tertiary"
                     android:textSize="12sp"
-                    tools:text="2023-10-06" />
+                    tools:text="@string/date_placeholder" />
 
             </LinearLayout>
 
@@ -88,7 +88,7 @@
                 android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                tools:text="Wall Street Closes Higher as Tech Rally Continues" />
+                tools:text="@string/headline_placeholder" />
 
             <!-- Description -->
             <TextView
@@ -101,7 +101,7 @@
                 android:maxLines="3"
                 android:textColor="@color/text_secondary"
                 android:textSize="13sp"
-                tools:text="Major indices closed higher this week following solid earnings and economic data that lifted market sentiment across sectors." />
+                tools:text="@string/description_new_placeholder" />
 
             <!-- Read More Button -->
             <com.google.android.material.button.MaterialButton

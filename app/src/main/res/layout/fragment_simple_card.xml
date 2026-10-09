@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:text="Track live prices &amp; performance"
+            android:text="@string/live_prices_placeholder"
             android:textColor="@color/text_secondary"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
@@ -45,7 +45,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnChecklist"
             android:layout_width="wrap_content"
-            android:layout_height="42dp"
+            android:layout_height="48dp"
             android:text="@string/edit_watchlist"
             android:textSize="13sp"
             android:textAllCaps="false"
@@ -93,7 +93,7 @@
         <ImageView
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:contentDescription="Empty Watchlist"
+            android:contentDescription="@string/empty_watchlist"
             android:src="@drawable/ic_empty_watchlist" />
 
         <TextView

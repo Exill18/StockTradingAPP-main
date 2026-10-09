@@ -44,7 +44,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Stock Overview"
+            android:text="@string/stock_overview"
             android:textColor="@color/text_primary"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -125,7 +125,7 @@
                             android:textColor="@color/text_primary"
                             android:textSize="24sp"
                             android:textStyle="bold"
-                            tools:text="NFLX" />
+                            tools:text="@string/nflx" />
 
                         <TextView
                             android:id="@+id/tvSectorDetailed"
@@ -136,7 +136,7 @@
                             android:textColor="@color/text_secondary"
                             android:textSize="12sp"
                             android:textStyle="bold"
-                            tools:text="Technology" />
+                            tools:text="@string/technology" />
                     </LinearLayout>
 
                     <!-- Divider -->
@@ -167,7 +167,7 @@
                             android:textColor="@color/text_primary"
                             android:textSize="32sp"
                             android:textStyle="bold"
-                            tools:text="$150.90" />
+                            tools:text="@string/_150_90" />
 
                         <!-- Percent Badge -->
                         <LinearLayout
@@ -183,7 +183,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="4dp"
-                                android:text="▲"
+                                android:text="@string/arrow_UP"
                                 android:textColor="@color/stock_green_dark"
                                 android:textSize="12sp" />
 
@@ -194,7 +194,7 @@
                                 android:textColor="@color/stock_green_dark"
                                 android:textSize="14sp"
                                 android:textStyle="bold"
-                                tools:text="+0.00%" />
+                                tools:text="@string/_0_00" />
                         </LinearLayout>
 
                     </LinearLayout>
@@ -223,7 +223,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Price History (Monthly)"
+                        android:text="@string/price_history_monthly"
                         android:textColor="@color/text_secondary"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -267,6 +267,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
+                        android:baselineAligned="false"
                         android:orientation="horizontal">
 
                         <LinearLayout
@@ -292,7 +293,7 @@
                                 android:textColor="@color/text_primary"
                                 android:textSize="14sp"
                                 android:textStyle="bold"
-                                tools:text="Technology" />
+                                tools:text="@string/technology" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -318,7 +319,7 @@
                                 android:textColor="@color/text_primary"
                                 android:textSize="14sp"
                                 android:textStyle="bold"
-                                tools:text="Ted Sarandos" />
+                                tools:text="@string/ted_sarandos" />
                         </LinearLayout>
 
                     </LinearLayout>
@@ -362,7 +363,7 @@
                         android:lineSpacingExtra="4dp"
                         android:textColor="@color/text_secondary"
                         android:textSize="14sp"
-                        tools:text="Company description goes here." />
+                        tools:text="@string/description_placeholder" />
 
                 </LinearLayout>
 
